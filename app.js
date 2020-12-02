@@ -1,6 +1,7 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
-const cTable = require('console.table');
+const cTable = require("console.table");
+
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -9,14 +10,6 @@ const connection = mysql.createConnection({
     password: "rootroot",
     database: "employee_db"
 });
-
-// connection.connect(function(err){
-//     if (err) throw err;
-//     console.table([
-//         {"Hello Friend!": "WELCOME TO THE EMPLOYEE TRACKER!"}
-//     ]);
-//     init();
-// });
 
 const initQuestion = [{
     name: "intro",
@@ -55,6 +48,13 @@ const removeEmployeeQuestions = [{
     message: "Please enter the last name of the employee you would like to remove."
 }];
 
+const chooseDepartment = [{
+    name: "chooseDepartment",
+    type: "list",
+    message: "Select a department to view all employees within.",
+    choices: ["Engineering", "Finance", "Legal", "Sales"]
+}];
+
 function init() {
     inquirer.prompt(initQuestion)
         .then(async function (answer) {
@@ -69,10 +69,10 @@ function init() {
                     viewEmployees();
                     break;
                 case "View Employees by Department":
-
+                    viewByDept();
                     break;
                 case "View Employees by Manager":
-
+                    viewByManager();
                     break;
                 case "Update Employee Role":
 
@@ -82,7 +82,6 @@ function init() {
                     break;
                 case "Exit":
                     return process.kill(process.pid);
-                    break;
             }
         });
 }
@@ -143,24 +142,58 @@ function addEmployee() {
         });
 }
 
-function viewEmployees() {
-    var query = "SELECT * FROM employee";
+function viewEmployees(){
+    let query = "SELECT * FROM employee";
     connection.query(query, function (err, res) {
         console.table(res);
         restartApp();
     });
 }
 
-function removeEmployee() {
+function viewByDept(){
+    inquirer.prompt(chooseDepartment)
+    .then(function(answer){
+        let department = answer.chooseDepartment;
+        let deptId;
+        switch(department){
+            case "Engineering":
+                deptId = 1;
+                break;
+            case "Finance":
+                deptId = 2;
+                break;
+            case "Legal":
+                deptId = 3;
+                break;
+            case "Sales":
+                deptId = 4;
+                break;
+        }
+        connection.query(
+            "SELECT * FROM employee INNER JOIN role on employee.role_id = role.id WHERE department_id = ?",
+            deptId,
+            function(err, res){
+                if (err) throw err;
+                console.table(res);
+                restartApp();
+            }
+        )
+    });
+}
+
+function viewByManager(){
+
+}
+
+function removeEmployee(){
     inquirer.prompt(removeEmployeeQuestions)
-        .then(function (answer) {
+        .then(function(answer) {
             connection.query(
                 "SELECT * FROM employee WHERE first_name = ? AND last_name = ?",
                 [answer.removeFirstName, answer.removeLastName],
                 function (err, res) {
-                    console.log(res);
+                    console.table(res);
                     let empId = res[0].id;
-                    console.log(empId);
                     if (err) throw err;
                     if (res) {
                         inquirer.prompt({
@@ -176,7 +209,6 @@ function removeEmployee() {
                                     "DELETE FROM employee WHERE id = ?",
                                     empId,
                                     function (err, result) {
-                                        console.log(result);
                                         if (err) throw err;
                                         if (res.affectedRows === 0) {
                                             console.log("! No employee found with the provided information");
