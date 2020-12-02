@@ -49,7 +49,7 @@ const removeEmployeeQuestions = [{
     name: "removeFirstName",
     type: "input",
     message: "Please enter the first name of the employee you would like to remove."
-},{
+}, {
     name: "removeLastName",
     type: "input",
     message: "Please enter the last name of the employee you would like to remove."
@@ -81,9 +81,27 @@ function init() {
 
                     break;
                 case "Exit":
+                    return process.kill(process.pid);
                     break;
             }
         });
+}
+
+function restartApp() {
+    inquirer.prompt({
+        name: "whatnext",
+        type: "list",
+        message: "What would you like to do next?",
+        choices: ["Start Over", "Exit"]
+    }).then(async function (answer) {
+        switch (answer.whatnext) {
+            case "Start Over":
+                init();
+                break;
+            case "Exit":
+                return process.kill(process.pid);
+        }
+    });
 }
 
 
@@ -92,7 +110,7 @@ function addEmployee() {
     inquirer.prompt(addEmployeeQuestions)
         .then(function (answer) {
             let roleChoice = answer.employeeRole;
-            switch(roleChoice){
+            switch (roleChoice) {
                 case "Sales Lead":
                 case "Salesperson":
                 case "Account Manager":
@@ -119,7 +137,7 @@ function addEmployee() {
                 function (err) {
                     if (err) throw err;
                     console.log("Successfully added employee.");
-                    init();
+                    restartApp();
                 }
             )
         });
@@ -129,36 +147,51 @@ function viewEmployees() {
     var query = "SELECT * FROM employee";
     connection.query(query, function (err, res) {
         console.table(res);
-        inquirer.prompt({
-            name: "whatnext",
-            type: "list",
-            message: "What would you like to do next?",
-            choices: ["Start Over", "Exit"]
-        }).then(async function (answer) {
-            switch (answer.whatnext) {
-                case "Start Over":
-                    init();
-                    break;
-                case "Exit":
-                    return process.kill(process.pid);
-            }
-        });
+        restartApp();
     });
 }
 
 function removeEmployee() {
     inquirer.prompt(removeEmployeeQuestions)
-    .then(function(answer){
-        connection.query(
-            "DELETE FROM employee WHERE first_name = ? AND last_name = ?",
+        .then(function (answer) {
+            connection.query(
+                "SELECT * FROM employee WHERE first_name = ? AND last_name = ?",
                 [answer.removeFirstName, answer.removeLastName],
-            function (err) {
-                if (err) throw err;
-                console.log("Successfully deleted employee " + answer.removeFirstName + " " + answer.removeLastName);
-                init();
-            }
-        )
-    });
+                function (err, res) {
+                    console.log(res);
+                    let empId = res[0].id;
+                    console.log(empId);
+                    if (err) throw err;
+                    if (res) {
+                        inquirer.prompt({
+                            name: "confirmdelete",
+                            type: "list",
+                            message: "Would you like to delete " + answer.removeFirstName + " " + answer.removeLastName + "?",
+                            choices: ["Yes", "No"]
+                        }).then(function (answer) {
+                            if (answer.confirmdelete === "No") {
+                                restartApp();
+                            } else {
+                                connection.query(
+                                    "DELETE FROM employee WHERE id = ?",
+                                    empId,
+                                    function (err, result) {
+                                        console.log(result);
+                                        if (err) throw err;
+                                        if (res.affectedRows === 0) {
+                                            console.log("! No employee found with the provided information");
+                                            restartApp();
+                                        } else {
+                                            console.log("Successfully deleted employee");
+                                            restartApp();
+                                        }
+                                    }
+                                );
+                            }
+                        });
+                    }
+                });
+        });
 }
 
 init();
