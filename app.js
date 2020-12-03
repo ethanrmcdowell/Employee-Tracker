@@ -34,8 +34,9 @@ const addEmployeeQuestions = [{
     choices: ["Sales Lead", "Salesperson", "Lead Engineer", "Software Engineer", "Account Manager", "Accountant", "Legal Team Lead"]
 }, {
     name: "employeeMgmtId",
-    type: "number",
-    message: "Enter the new employee's manager's ID number:"
+    type: "list",
+    message: "Select the new employee's manager:",
+    choices: listmanagers()
 }];
 
 const removeEmployeeQuestions = [{
@@ -97,20 +98,22 @@ function listAllEmployees() {
 }
 
 function restartApp() {
-    inquirer.prompt({
-        name: "whatnext",
-        type: "list",
-        message: "What would you like to do next?",
-        choices: ["Start Over", "Exit"]
-    }).then(async function (answer) {
-        switch (answer.whatnext) {
-            case "Start Over":
-                init();
-                break;
-            case "Exit":
-                return process.kill(process.pid);
-        }
-    });
+    setTimeout(function () {
+        inquirer.prompt({
+            name: "whatnext",
+            type: "list",
+            message: "What would you like to do next?",
+            choices: ["Start Over", "Exit"]
+        }).then(async function (answer) {
+            switch (answer.whatnext) {
+                case "Start Over":
+                    init();
+                    break;
+                case "Exit":
+                    return process.kill(process.pid);
+            }
+        });
+    }, 1000);
 }
 
 
@@ -118,22 +121,33 @@ function addEmployee() {
     let empRole;
     inquirer.prompt(addEmployeeQuestions)
         .then(function (answer) {
+            let managerchoice = answer.employeeMgmtId;
+            let mgmtvalue = managerchoice.split(" ");
+            let managerFirstName = mgmtvalue.shift();
+            let managerLastName = mgmtvalue.join(' ');
+            let managerid;
+            connection.query(
+                "SELECT id FROM employee WHERE first_name = ? AND last_name = ?",
+                [managerFirstName, managerLastName],
+                function (err, res) {
+                    if (err) throw err;
+                    managerid = res[0].id;
+                });
             let roleChoice = answer.employeeRole;
             switch (roleChoice) {
-                case "Sales Lead":
-                case "Salesperson":
-                case "Account Manager":
-                    empRole = 4;
+                case "Sales Lead": empRole = 1;
                     break;
-                case "Lead Engineer":
-                case "Software Engineer":
-                    empRole = 1;
+                case "Salesperson": empRole = 2;
                     break;
-                case "Accountant":
-                    empRole = 2;
+                case "Lead Engineer": empRole = 3;
                     break;
-                case "Legal Team Lead":
-                    empRole = 3;
+                case "Software Engineer": empRole = 4;
+                    break;
+                case "Account Manager": empRole = 5;
+                    break;
+                case "Accountant": empRole = 6;
+                    break;
+                case "Legal Team Lead": empRole = 7;
                     break;
             }
             connection.query(
@@ -141,19 +155,19 @@ function addEmployee() {
                     first_name: answer.employeeFirstName,
                     last_name: answer.employeeLastName,
                     role_id: empRole,
-                    manager_id: answer.employeeMgmtId
+                    manager_id: managerid
                 },
                 function (err) {
                     if (err) throw err;
                     console.log("Successfully added employee.");
                     restartApp();
                 }
-            )
+            );
         });
 }
 
 function viewEmployees() {
-    let query = "SELECT * FROM employee";
+    let query = "SELECT employee.first_name AS 'First Name', employee.last_name AS 'Last Name', role.title as 'Job Title' FROM employee JOIN role ON employee.role_id = role.id";
     connection.query(query, function (err, res) {
         if (err) throw err;
         console.table(res);
@@ -309,7 +323,7 @@ function removeEmployee() {
                                 connection.query(
                                     "DELETE FROM employee WHERE id = ?",
                                     empId,
-                                    function (err, result) {
+                                    function (err, res) {
                                         if (err) throw err;
                                         if (res.affectedRows === 0) {
                                             console.log("! No employee found with the provided information");
@@ -325,6 +339,19 @@ function removeEmployee() {
                     }
                 });
         });
+}
+
+function listmanagers() {
+    let managers = [];
+    connection.query(
+        "SELECT * FROM employee WHERE manager_id IS NULL",
+        function (err, res) {
+            if (err) throw err;
+            for (i = 0; i < res.length; i++) {
+                managers.push(res[i].first_name + " " + res[i].last_name);
+            }
+        });
+    return managers;
 }
 
 init();
