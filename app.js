@@ -142,7 +142,7 @@ function addEmployee() {
         });
 }
 
-function viewEmployees(){
+function viewEmployees() {
     let query = "SELECT * FROM employee";
     connection.query(query, function (err, res) {
         console.table(res);
@@ -150,44 +150,78 @@ function viewEmployees(){
     });
 }
 
-function viewByDept(){
+function viewByDept() {
     inquirer.prompt(chooseDepartment)
-    .then(function(answer){
-        let department = answer.chooseDepartment;
-        let deptId;
-        switch(department){
-            case "Engineering":
-                deptId = 1;
-                break;
-            case "Finance":
-                deptId = 2;
-                break;
-            case "Legal":
-                deptId = 3;
-                break;
-            case "Sales":
-                deptId = 4;
-                break;
-        }
-        connection.query(
-            "SELECT * FROM employee INNER JOIN role on employee.role_id = role.id WHERE department_id = ?",
-            deptId,
-            function(err, res){
-                if (err) throw err;
-                console.table(res);
-                restartApp();
+        .then(function (answer) {
+            let department = answer.chooseDepartment;
+            let deptId;
+            switch (department) {
+                case "Engineering":
+                    deptId = 1;
+                    break;
+                case "Finance":
+                    deptId = 2;
+                    break;
+                case "Legal":
+                    deptId = 3;
+                    break;
+                case "Sales":
+                    deptId = 4;
+                    break;
             }
-        )
+            connection.query(
+                "SELECT * FROM employee INNER JOIN role ON employee.role_id = role.id WHERE department_id = ?",
+                deptId,
+                function (err, res) {
+                    if (err) throw err;
+                    console.table(res);
+                    restartApp();
+                }
+            )
+        });
+}
+
+function viewByManager() {
+    let managers = [];
+    connection.query(
+        "SELECT * FROM employee WHERE manager_id IS NULL",
+        function(err, res){
+        if (err) throw err;
+        for(i=0; i < res.length; i++){
+            managers.push(res[i].first_name + " " + res[i].last_name);
+        }
+        inquirer.prompt({
+            name: "chooseManager",
+            type: "list",
+            message: "Select a manager.",
+            choices: managers
+        }).then(function(answer){
+            let managerpick = answer.chooseManager;
+            managerpick = managerpick.substr(0,managerpick.indexOf(' '));
+            connection.query(
+                "SELECT id FROM employee WHERE first_name = ?",
+                managerpick,                                
+                function(err,res){
+                    if (err) throw err;
+                    let managerid = res[0].id;
+                    connection.query(
+                        "SELECT employee.id, employee.first_name, employee.last_name, department.name FROM employee INNER JOIN department ON employee.role_id = department.id WHERE manager_id = ?",
+                        managerid,
+                        function(err,res){
+                            if (err) throw err;
+                            console.table(res);
+                            restartApp();
+                        }
+                    )
+                }
+            );
+        });
     });
 }
 
-function viewByManager(){
-
-}
-
-function removeEmployee(){
+function removeEmployee() {
     inquirer.prompt(removeEmployeeQuestions)
-        .then(function(answer) {
+        .then(function (answer) {
             connection.query(
                 "SELECT * FROM employee WHERE first_name = ? AND last_name = ?",
                 [answer.removeFirstName, answer.removeLastName],
