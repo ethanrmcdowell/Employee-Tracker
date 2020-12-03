@@ -75,7 +75,7 @@ function init() {
                     viewByManager();
                     break;
                 case "Update Employee Role":
-
+                    updateRole();
                     break;
                 case "Update Employee Manager":
 
@@ -84,6 +84,16 @@ function init() {
                     return process.kill(process.pid);
             }
         });
+}
+
+function listAllEmployees() {
+    let employeeList = [];
+    connection.query(
+        "SELECT * FROM employee ORDER BY last_name",
+        function (err) {
+            if (err) throw err;
+        }
+    )
 }
 
 function restartApp() {
@@ -178,7 +188,63 @@ function viewByDept() {
                     console.table(res);
                     restartApp();
                 }
-            )
+            );
+        });
+}
+
+function updateRole() {
+    let employees = [];
+    connection.query(
+        "SELECT * FROM employee ORDER BY last_name",
+        function (err, res) {
+            if (err) throw err;
+            for (i = 0; i < res.length; i++) {
+                employees.push(res[i].first_name + " " + res[i].last_name);
+            }
+            inquirer.prompt({
+                name: "chooseEmployee",
+                type: "rawlist",
+                message: "Select the employee you would like to update.",
+                choices: employees
+            }).then(function (answer) {
+                let employeepick = answer.chooseEmployee;
+                let values = employeepick.split(" ");
+                let employeeFirstName = values.shift();
+                let employeeLastName = values.join(' ');
+                inquirer.prompt([{
+                    name: "changerole",
+                    type: "list",
+                    message: "Select the role you would like " + employeepick + " to be assigned to.",
+                    choices: ["Sales Lead", "Salesperson", "Lead Engineer", "Software Engineer", "Account Manager", "Accountant", "Legal Team Lead"]
+                }]).then(function (answer) {
+                    let rolechoice;
+                    switch (answer.changerole) {
+                        case "Sales Lead":
+                        case "Salesperson":
+                        case "Account Manager":
+                            rolechoice = 4;
+                            break;
+                        case "Lead Engineer":
+                        case "Software Engineer":
+                            rolechoice = 1;
+                            break;
+                        case "Accountant":
+                            rolechoice = 2;
+                            break;
+                        case "Legal Team Lead":
+                            rolechoice = 3;
+                            break;
+                    }
+                    connection.query(
+                        "UPDATE employee SET role_id = ? WHERE first_name = ? AND last_name = ?",
+                        [rolechoice, employeeFirstName, employeeLastName],
+                        function (err, res) {
+                            if (err) throw err;
+                            console.table(res);
+                            restartApp();
+                        });
+                });
+            });
         });
 }
 
@@ -186,38 +252,38 @@ function viewByManager() {
     let managers = [];
     connection.query(
         "SELECT * FROM employee WHERE manager_id IS NULL",
-        function(err, res){
-        if (err) throw err;
-        for(i=0; i < res.length; i++){
-            managers.push(res[i].first_name + " " + res[i].last_name);
-        }
-        inquirer.prompt({
-            name: "chooseManager",
-            type: "list",
-            message: "Select a manager.",
-            choices: managers
-        }).then(function(answer){
-            let managerpick = answer.chooseManager;
-            managerpick = managerpick.substr(0,managerpick.indexOf(' '));
-            connection.query(
-                "SELECT id FROM employee WHERE first_name = ?",
-                managerpick,                                
-                function(err,res){
-                    if (err) throw err;
-                    let managerid = res[0].id;
-                    connection.query(
-                        "SELECT employee.id, employee.first_name, employee.last_name, department.name FROM employee INNER JOIN department ON employee.role_id = department.id WHERE manager_id = ?",
-                        managerid,
-                        function(err,res){
-                            if (err) throw err;
-                            console.table(res);
-                            restartApp();
-                        }
-                    )
-                }
-            );
+        function (err, res) {
+            if (err) throw err;
+            for (i = 0; i < res.length; i++) {
+                managers.push(res[i].first_name + " " + res[i].last_name);
+            }
+            inquirer.prompt({
+                name: "chooseManager",
+                type: "list",
+                message: "Select a manager.",
+                choices: managers
+            }).then(function (answer) {
+                let managerpick = answer.chooseManager;
+                managerpick = managerpick.substr(0, managerpick.indexOf(' '));
+                connection.query(
+                    "SELECT id FROM employee WHERE first_name = ?",
+                    managerpick,
+                    function (err, res) {
+                        if (err) throw err;
+                        let managerid = res[0].id;
+                        connection.query(
+                            "SELECT employee.id, employee.first_name, employee.last_name, department.name FROM employee INNER JOIN department ON employee.role_id = department.id WHERE manager_id = ?",
+                            managerid,
+                            function (err, res) {
+                                if (err) throw err;
+                                console.table(res);
+                                restartApp();
+                            }
+                        )
+                    }
+                );
+            });
         });
-    });
 }
 
 function removeEmployee() {
