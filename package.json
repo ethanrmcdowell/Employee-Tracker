@@ -1,0 +1,23 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ethanrmcdowell/Employee-Tracker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ethanrmcdowell/Employee-Tracker/issues"
+  },
+  "homepage": "https://github.com/ethanrmcdowell/Employee-Tracker#readme",
+  "dependencies": {
+    "ctable": "^0.0.3",
+    "inquirer": "^7.3.3"
+  }
+}
