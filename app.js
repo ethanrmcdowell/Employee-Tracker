@@ -79,7 +79,7 @@ function init() {
                     updateRole();
                     break;
                 case "Update Employee Manager":
-
+                    updateManager();
                     break;
                 case "Exit":
                     return process.kill(process.pid);
@@ -135,19 +135,26 @@ function addEmployee() {
                 });
             let roleChoice = answer.employeeRole;
             switch (roleChoice) {
-                case "Sales Lead": empRole = 1;
+                case "Sales Lead":
+                    empRole = 1;
                     break;
-                case "Salesperson": empRole = 2;
+                case "Salesperson":
+                    empRole = 2;
                     break;
-                case "Lead Engineer": empRole = 3;
+                case "Lead Engineer":
+                    empRole = 3;
                     break;
-                case "Software Engineer": empRole = 4;
+                case "Software Engineer":
+                    empRole = 4;
                     break;
-                case "Account Manager": empRole = 5;
+                case "Account Manager":
+                    empRole = 5;
                     break;
-                case "Accountant": empRole = 6;
+                case "Accountant":
+                    empRole = 6;
                     break;
-                case "Legal Team Lead": empRole = 7;
+                case "Legal Team Lead":
+                    empRole = 7;
                     break;
             }
             connection.query(
@@ -225,12 +232,12 @@ function updateRole() {
                 let values = employeepick.split(" ");
                 let employeeFirstName = values.shift();
                 let employeeLastName = values.join(' ');
-                inquirer.prompt([{
+                inquirer.prompt({
                     name: "changerole",
                     type: "list",
                     message: "Select the role you would like " + employeepick + " to be assigned to.",
                     choices: ["Sales Lead", "Salesperson", "Lead Engineer", "Software Engineer", "Account Manager", "Accountant", "Legal Team Lead"]
-                }]).then(function (answer) {
+                }).then(function (answer) {
                     let rolechoice;
                     switch (answer.changerole) {
                         case "Sales Lead":
@@ -258,6 +265,69 @@ function updateRole() {
                             restartApp();
                         });
                 });
+            });
+        });
+}
+
+function updateManager() {
+    let employees = [];
+    connection.query(
+        "SELECT * FROM employee ORDER BY last_name",
+        function (err, res) {
+            if (err) throw err;
+            for (i = 0; i < res.length; i++) {
+                employees.push(res[i].first_name + " " + res[i].last_name);
+            }
+            inquirer.prompt({
+                name: "chooseEmployee",
+                type: "rawlist",
+                message: "Select the employee you would like to update.",
+                choices: employees
+            }).then(function (answer) {
+                let employeepick = answer.chooseEmployee;
+                let values = employeepick.split(" ");
+                let employeeFirstName = values.shift();
+                let employeeLastName = values.join(" ");
+                managers = [];
+                connection.query(
+                    "SELECT * FROM employee WHERE manager_id IS NULL",
+                    function (err, res) {
+                        if (err) throw err;
+                        for (i = 0; i < res.length; i++) {
+                            managers.push(res[i].first_name + " " + res[i].last_name);
+                        }
+                        inquirer.prompt({
+                            name: "changemanager",
+                            type: "list",
+                            message: "Select the manager you would like " + employeepick + " to be assigned to.",
+                            choices: managers
+                        }).then(function (answer) {
+                            let managerpick = answer.changemanager;
+                            let values = managerpick.split(" ");
+                            let managerFirstName = values.shift();
+                            let managerLastName = values.join(" ");
+                            connection.query(
+                                "SELECT id FROM employee WHERE first_name = ? AND last_name = ?",
+                                [managerFirstName, managerLastName],
+                                function (err, res) {
+                                    if (err) throw err;
+                                    let managerid = res[0].id;
+                                    console.table(res);
+                                    connection.query(
+                                        "UPDATE employee SET manager_id = ? WHERE first_name = ? AND last_name = ?",
+                                        [managerid, employeeFirstName, employeeLastName],
+                                        function (err, res) {
+                                            if (err) throw err;
+                                            if (res.affectedRows === 0){
+                                                console.log("! Error, please try again.");
+                                            } else {
+                                                console.log("Successfully updated employee: manager for " + employeepick + " changed to " + managerpick + ".");
+                                            }
+                                            restartApp();
+                                        });
+                                });
+                        });
+                    });
             });
         });
 }
