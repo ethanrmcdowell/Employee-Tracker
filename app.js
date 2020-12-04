@@ -78,17 +78,16 @@ function init() {
                 case "View Roles":
                     viewRoles();
                     break;
-
                 case "Add Department":
                     addDepartment();
                     break;
+
                 case "Remove Department":
                     removeDepartment();
                     break;
                 case "View Departments":
                     viewDepartments();
                     break;
-
                 case "View Employees by Department":
                     viewByDept();
                     break;
@@ -107,9 +106,9 @@ function init() {
         });
 }
 
-function viewRoles(){
+function viewDepartments(){
     connection.query(
-        "SELECT title, salary FROM role",
+        "SELECT name AS 'Department Name' FROM department",
         function(err,res){
             if (err) throw err;
             console.table(res);
@@ -118,7 +117,90 @@ function viewRoles(){
     )
 }
 
-function removeRole(){
+function removeDepartment() {
+    connection.query(
+        "SELECT name FROM department",
+        function (err, res) {
+            if (err) throw err;
+            let departmenttitles = [];
+            for (let i = 0; i < res.length; i++) {
+                departmenttitles.push(res[i].name);
+            }
+            inquirer.prompt({
+                name: "removedepttitle",
+                type: "list",
+                message: "Select the department to be removed.",
+                choices: departmenttitles
+            }, {
+                name: "removedeptconfirm",
+                type: "list",
+                message: "CONFIRM deletion of role.",
+                choices: ["Yes", "No"]
+            }).then(function (answer) {
+                if (answer.removedeptconfirm === "No") {
+                    restartApp();
+                } else {
+                    connection.query(
+                        "DELETE FROM department WHERE name = ?",
+                        answer.removedepttitle,
+                        function (err, res) {
+                            if (err) throw err;
+                            if (res.affectedRows === 0) {
+                                console.log("! ERROR deleting department.");
+                                restartApp();
+                            } else {
+                                console.log("$ SUCCESSFULLY deleted department '" + answer.removedepttitle + "'");
+                                restartApp();
+                            }
+                        });
+                }
+            });
+        });
+}
+
+function addDepartment() {
+    connection.query(
+        "SELECT name FROM department",
+        function (err, res) {
+            if (err) throw res;
+            let departmenttitles = [];
+            for (let i = 0; i < res.length; i++) {
+                departmenttitles.push(res[i].name);
+            }
+            console.log("\n CURRENT DEPARTMENTS: " + departmenttitles.toString() + "\n")
+            inquirer.prompt({
+                name: "adddepttitle",
+                type: "input",
+                message: "Enter a name for the new department."
+            }).then(async function (answer) {
+                connection.query(
+                    "INSERT INTO department SET name = ?",
+                    answer.adddepttitle,
+                    function (err, res) {
+                        if (err) throw err;
+                        if (res.affectedRows === 0) {
+                            console.log("! ERROR adding department, please try again.");
+                        } else {
+                            console.log("$ SUCCESSFULLY added department '" + answer.adddepttitle + "'");
+                        }
+                        restartApp();
+                    });
+            });
+        });
+}
+
+function viewRoles() {
+    connection.query(
+        "SELECT title, salary FROM role",
+        function (err, res) {
+            if (err) throw err;
+            console.table(res);
+            restartApp();
+        }
+    )
+}
+
+function removeRole() {
     connection.query(
         "SELECT title FROM role",
         function (err, res) {
@@ -132,26 +214,26 @@ function removeRole(){
                 type: "list",
                 message: "Select role to delete.",
                 choices: roletitles
-            },{
+            }, {
                 name: "confirmroledelete",
                 type: "list",
                 message: "CONFIRM deletion of role.",
                 choices: ["Yes", "No"]
-            }]).then(async function(answer){
-                if (answer.confirmroledelete === "No"){
+            }]).then(async function (answer) {
+                if (answer.confirmroledelete === "No") {
                     restartApp();
                 } else {
                     connection.query(
                         "DELETE FROM role WHERE title = ?",
                         answer.selectrole,
-                        function(err,res){
+                        function (err, res) {
                             if (err) throw err;
                             console.table(res);
                             restartApp();
                         });
                 }
             });
-            
+
         });
 }
 
@@ -378,7 +460,7 @@ function updateRole() {
                         [rolechoice, employeeFirstName, employeeLastName],
                         function (err, res) {
                             if (err) throw err;
-                            if (res.affectedRows === 0){
+                            if (res.affectedRows === 0) {
                                 console.log("! ERROR updating employee, please try again.");
                             } else {
                                 console.log("$ SUCCESSFULLY updated role for employee " + employeeFirstName + " " + employeeLastName + " to '" + answer.changerole + "'");
