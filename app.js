@@ -107,6 +107,16 @@ function init() {
         });
 }
 
+function viewRoles(){
+    connection.query(
+        "SELECT title, salary FROM role",
+        function(err,res){
+            if (err) throw err;
+            console.table(res);
+            restartApp();
+        }
+    )
+}
 
 function removeRole(){
     connection.query(
