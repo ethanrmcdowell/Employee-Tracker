@@ -544,35 +544,26 @@ function viewEmployees() {
 }
 
 // FUNCTION TO VIEW ALL EMPLOYEES IN SELECTED DEPARTMENT
-function viewByDept() {
+function viewByDept(){
     inquirer.prompt(chooseDepartment)
-        .then(function (answer) {
-            let department = answer.chooseDepartment;
-            let deptId;
-            switch (department) {
-                case "Engineering":
-                    deptId = 1;
-                    break;
-                case "Finance":
-                    deptId = 2;
-                    break;
-                case "Legal":
-                    deptId = 3;
-                    break;
-                case "Sales":
-                    deptId = 4;
-                    break;
-            }
-            connection.query(
-                "SELECT employee.first_name AS 'First Name', employee.last_name AS 'Last Name', role.title AS 'Job Title', salary AS 'Salary' FROM employee INNER JOIN role ON employee.role_id = role.id WHERE department_id = ?",
-                deptId,
-                function (err, res) {
-                    if (err) throw err;
-                    console.table(res);
-                    restartApp();
-                }
-            );
-        });
+    .then(async function(answer){
+        connection.query(
+            "SELECT id FROM department WHERE name = ?",
+            answer.chooseDepartment,
+            function(err,res){
+                if (err) throw err;
+                let deptid = res[0].id;
+                connection.query(
+                    "SELECT employee.first_name AS 'First Name', employee.last_name AS 'Last Name', role.title AS 'Job Title', salary AS 'alary' FROM employee INNER JOIN role on employee.role_id = role.id WHERE department_id = ?",
+                    
+                    deptid,
+                    function(err,res){
+                        if (err) throw err;
+                        console.table(res);
+                        restartApp();
+                    });
+            });
+    });
 }
 
 function updateRole() {
