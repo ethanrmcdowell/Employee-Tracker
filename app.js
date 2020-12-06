@@ -11,14 +11,6 @@ const connection = mysql.createConnection({
     database: "employee_db"
 });
 
-const initQuestion = [{
-    name: "intro",
-    type: "list",
-    message: "What would you like to do?",
-    choices: ["View All Employees", "Add Employee", "Remove Employee", "Add Role", "Remove Role", "View Roles", "Add Department", "Remove Department", "View Departments", "View Employees by Department", "View Employees by Manager", "Update Employee Role", "Update Employee Manager", "Exit"]
-}]
-
-
 const addEmployeeQuestions = [{
     name: "employeeFirstName",
     type: "input",
@@ -56,54 +48,162 @@ const chooseDepartment = [{
     choices: ["Engineering", "Finance", "Legal", "Sales"]
 }];
 
-function init() {
-    inquirer.prompt(initQuestion)
-        .then(async function (answer) {
-            switch (answer.intro) {
-                case "Add Employee":
-                    addEmployee();
-                    break;
-                case "Remove Employee":
-                    removeEmployee();
-                    break;
-                case "View Employees":
-                    viewEmployees();
-                    break;
-                case "Add Role":
-                    addRole();
-                    break;
-                case "Remove Role":
-                    removeRole();
-                    break;
-                case "View Roles":
-                    viewRoles();
-                    break;
-                case "Add Department":
-                    addDepartment();
-                    break;
+const initQuestion = [{
+    name: "intro",
+    type: "list",
+    message: "Make a selection:",
+    choices: ["View", "Add", "Remove", "Update", "Exit"]
+}];
 
-                case "Remove Department":
-                    removeDepartment();
-                    break;
-                case "View Departments":
-                    viewDepartments();
-                    break;
-                case "View Employees by Department":
-                    viewByDept();
-                    break;
-                case "View Employees by Manager":
-                    viewByManager();
-                    break;
-                case "Update Employee Role":
-                    updateRole();
-                    break;
-                case "Update Employee Manager":
-                    updateManager();
+const updateQuestion = [{
+    name: "update",
+    type: "list",
+    message: "What would you like to update?",
+    choices: ["Update Employee Role", "Update Employee Manager", "Go Back"]
+}];
+
+const removeQuestion = [{
+    name: "remove",
+    type: "list",
+    message: "What would you like to remove?",
+    choices: ["Remove Employee", "Remove Role", "Remove Department", "Go Back"]
+}];
+
+const addQuestion = [{
+    name: "add",
+    type: "list",
+    message: "What would you like to add?",
+    choices: ["Add Employee", "Add Role", "Add Department", "Go Back"]
+}];
+
+const viewQuestion = [{
+    name: "view",
+    type: "list",
+    message: "What would you like to view?",
+    choices: ["View All Employees", "View Roles", "View Departments", "View Employees by Department", "View Employees by Manager", "Go Back"]
+}];
+
+function init(){
+    inquirer.prompt(initQuestion)
+    .then(async function(answer){
+        switch (answer.intro){
+            case "View":
+                introView();
+                break;
+            case "Add":
+                introAdd();
+                break;
+            case "Remove":
+                introRemove();
+                break;
+            case "Update":
+                introUpdate();
+            case "Exit":
+                return process.kill(process.pid);
+        }
+    });
+}
+
+function introAdd(){
+    inquirer.prompt(addQuestion)
+    .then(async function(answer){
+        switch (answer.add){
+            case "Add Employee":
+                addEmployee();
+                break;
+            case "Add Role":
+                addRole();
+                break;
+            case "Add Department":
+                addDepartment();
+                break;
+            case "Go Back":
+                init();
+                break;
+        }
+    });
+}
+
+function introView(){
+    inquirer.prompt(viewQuestion)
+    .then(async function(answer){
+        switch (answer.view){
+            case "View All Employees":
+                viewEmployees();
+                break;
+            case "View Roles":
+                viewRoles();
+                break;
+            case "View Departments":
+                viewDepartments();
+                break;
+            case "View Employees by Department":
+                viewByDept();
+                break;
+            case "View Employees by Manager":
+                viewByManager();
+                break;
+            case "Go Back":
+                init();
+                break;
+        }
+    });
+}
+
+function introRemove(){
+    inquirer.prompt(removeQuestion)
+    .then(async function(answer){
+        switch (answer.remove){
+            case "Remove Employee":
+                removeEmployee();
+                break;
+            case "Remove Role":
+                removeRole();
+                break;
+            case "Remove Department":
+                removeDepartment();
+                break;
+            case "Go Back":
+                init();
+                break;
+        }
+    });
+}
+
+function introUpdate(){
+    inquirer.prompt(updateQuestion)
+    .then(async function(answer){
+        switch(answer.update){
+            case "Update Employee Role":
+                updateRole();
+                break;
+            case "Update Employee Manager":
+                updateManager();
+                break;
+            case "Go Back":
+                init();
+                break;
+        }
+    })
+}
+
+function restartApp() {
+    setTimeout(function () {
+        inquirer.prompt({
+            name: "whatnext",
+            type: "list",
+            message: "What would you like to do next?",
+            choices: ["Start Over", "Exit"]
+        }).then(async function (answer) {
+            switch (answer.whatnext) {
+                case "Start Over":
+                    init();
                     break;
                 case "Exit":
                     return process.kill(process.pid);
             }
         });
+    }, 1000);
 }
 
 function viewDepartments(){
@@ -295,26 +395,6 @@ function addRole() {
                 });
         });
 }
-
-function restartApp() {
-    setTimeout(function () {
-        inquirer.prompt({
-            name: "whatnext",
-            type: "list",
-            message: "What would you like to do next?",
-            choices: ["Start Over", "Exit"]
-        }).then(async function (answer) {
-            switch (answer.whatnext) {
-                case "Start Over":
-                    init();
-                    break;
-                case "Exit":
-                    return process.kill(process.pid);
-            }
-        });
-    }, 1000);
-}
-
 
 function addEmployee() {
     let empRole;
