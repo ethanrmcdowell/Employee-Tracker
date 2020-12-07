@@ -310,8 +310,7 @@ function viewDepartments() {
             if (err) throw err;
             console.table(res);
             restartApp();
-        }
-    )
+        });
 }
 
 // FUNCTION TO REMOVE THE SELECTED DEPARTMENT, WILL ASK FOR CONFIRMATION BEFORE DELETING, WILL SET ANYTHING RELIANT ON THIS DEPT AS 'NULL' WHERE REFERENCING DEPARTMENT AS PER SCHEMA
@@ -344,10 +343,10 @@ function removeDepartment() {
                         function (err, res) {
                             if (err) throw err;
                             if (res.affectedRows === 0) {
-                                console.log("! ERROR deleting department.");
+                                console.log("\n ! ERROR deleting department. \n");
                                 restartApp();
                             } else {
-                                console.log("$ SUCCESSFULLY deleted department '" + answer.removedepttitle + "'");
+                                console.log("\n $ SUCCESSFULLY deleted department '" + answer.removedepttitle + "' \n");
                                 restartApp();
                             }
                         });
@@ -378,9 +377,9 @@ function addDepartment() {
                     function (err, res) {
                         if (err) throw err;
                         if (res.affectedRows === 0) {
-                            console.log("! ERROR adding department, please try again.");
+                            console.log("\n ! ERROR adding department, please try again. \n");
                         } else {
-                            console.log("$ SUCCESSFULLY added department '" + answer.adddepttitle + "'");
+                            console.log("\n $ SUCCESSFULLY added department '" + answer.adddepttitle + "' \n");
                         }
                         restartApp();
                     });
@@ -428,7 +427,11 @@ function removeRole() {
                         answer.selectrole,
                         function (err, res) {
                             if (err) throw err;
-                            console.table(res);
+                            if (res.affectedRows === 0){
+                                console.log("\n ERROR deleting role - please try again. \n");
+                            } else {
+                                console.log("\n SUCESS role deleted! \n");
+                            }
                             restartApp();
                         });
                 }
@@ -481,9 +484,9 @@ function addRole() {
                                     function (err, res) {
                                         if (err) throw err;
                                         if (res.affectedRows === 0) {
-                                            console.log("! ERROR adding role, please try again.");
+                                            console.log("\n ! ERROR adding role, please try again. \n");
                                         } else {
-                                            console.log("$ SUCCESSFULLY added role " + answer.addroletitle);
+                                            console.log("\n $ SUCCESS added role " + answer.addroletitle + "\n");
                                         }
                                     });
                                 restartApp();
@@ -494,7 +497,6 @@ function addRole() {
 }
 
 // FUNCTION TO ADD NEW EMPLOYEE
-
 function addEmployee() {
     let emprole;
     inquirer.prompt(addEmployeeQuestions)
@@ -525,7 +527,7 @@ function addEmployee() {
                                 },
                                 function (err, res) {
                                     if (err) throw err;
-                                    console.log("$ SUCCESSFULLY added employee " + answer.employeeFirstName + " " + answer.employeeLastName);
+                                    console.log("\n $ SUCCESS added employee " + answer.employeeFirstName + " " + answer.employeeLastName + "\n");
                                     restartApp();
                                 });
                         });
@@ -610,9 +612,9 @@ function updateRole() {
                                         function (err, res) {
                                             if (err) throw err;
                                             if (res.affectedRows === 0) {
-                                                console.log("! ERROR updating employee role - please try again.");
+                                                console.log("\n ! ERROR updating employee role - please try again. \n");
                                             } else {
-                                                console.log("$ SUCCESSFULLY updated role for employee " + employeeFirstName + " " + employeeLastName + " to '" + answer.chooseRole + "'");
+                                                console.log("\n $ SUCCESS updated role for employee " + employeeFirstName + " " + employeeLastName + " to '" + answer.chooseRole + "' \n");
                                             }
                                             restartApp();
                                         });
@@ -672,9 +674,9 @@ function updateManager() {
                                         function (err, res) {
                                             if (err) throw err;
                                             if (res.affectedRows === 0) {
-                                                console.log("! Error, please try again.");
+                                                console.log("\n ! ERROR please try again. \n");
                                             } else {
-                                                console.log("Successfully updated employee: manager for " + employeepick + " changed to " + managerpick + ".");
+                                                console.log("\n $ SUCCESS updated employee: manager for " + employeepick + " changed to " + managerpick + ". \n");
                                             }
                                             restartApp();
                                         });
@@ -726,13 +728,15 @@ function removeEmployee() {
     inquirer.prompt(removeEmployeeQuestions)
         .then(function (answer) {
             connection.query(
-                "SELECT * FROM employee WHERE first_name = ? AND last_name = ?",
+                "SELECT id, first_name AS 'First Name', last_name AS 'Last Name' FROM employee WHERE first_name = ? AND last_name = ?",
                 [answer.removeFirstName, answer.removeLastName],
                 function (err, res) {
+                    if (err) throw err;
                     console.table(res);
                     let empId = res[0].id;
-                    if (err) throw err;
-                    if (res) {
+                    if (!res) {
+                        console.log("! ERROR please try again.");
+                    } else if (res) {
                         inquirer.prompt({
                             name: "confirmdelete",
                             type: "list",
@@ -748,10 +752,10 @@ function removeEmployee() {
                                     function (err, res) {
                                         if (err) throw err;
                                         if (res.affectedRows === 0) {
-                                            console.log("! No employee found with the provided information");
+                                            console.log("\n ! ERROR no employee found with the provided information \n");
                                             restartApp();
                                         } else {
-                                            console.log("Successfully deleted employee");
+                                            console.log("\n $ SUCCESS employee deleted \n");
                                             restartApp();
                                         }
                                     }
