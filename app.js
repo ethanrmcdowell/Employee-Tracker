@@ -33,16 +33,6 @@ const addEmployeeQuestions = [{
     choices: listmanagers()
 }];
 
-const removeEmployeeQuestions = [{
-    name: "removeFirstName",
-    type: "input",
-    message: "Please enter the first name of the employee you would like to remove."
-}, {
-    name: "removeLastName",
-    type: "input",
-    message: "Please enter the last name of the employee you would like to remove."
-}];
-
 const chooseDepartment = [{
     name: "chooseDepartment",
     type: "list",
@@ -113,6 +103,7 @@ function init() {
                     introBudget();
                     break;
                 case "Exit":
+                    console.log("\n $ THANK YOU!");
                     return process.kill(process.pid);
             }
         });
@@ -132,6 +123,7 @@ function restartApp() {
                     init();
                     break;
                 case "Exit":
+                    console.log("\n $ THANK YOU!");
                     return process.kill(process.pid);
             }
         });
@@ -427,7 +419,7 @@ function removeRole() {
                         answer.selectrole,
                         function (err, res) {
                             if (err) throw err;
-                            if (res.affectedRows === 0){
+                            if (res.affectedRows === 0) {
                                 console.log("\n ERROR deleting role - please try again. \n");
                             } else {
                                 console.log("\n SUCESS role deleted! \n");
@@ -436,7 +428,6 @@ function removeRole() {
                         });
                 }
             });
-
         });
 }
 
@@ -546,26 +537,25 @@ function viewEmployees() {
 }
 
 // FUNCTION TO VIEW ALL EMPLOYEES IN SELECTED DEPARTMENT
-function viewByDept(){
+function viewByDept() {
     inquirer.prompt(chooseDepartment)
-    .then(async function(answer){
-        connection.query(
-            "SELECT id FROM department WHERE name = ?",
-            answer.chooseDepartment,
-            function(err,res){
-                if (err) throw err;
-                let deptid = res[0].id;
-                connection.query(
-                    "SELECT employee.first_name AS 'First Name', employee.last_name AS 'Last Name', role.title AS 'Job Title', salary AS 'alary' FROM employee INNER JOIN role on employee.role_id = role.id WHERE department_id = ?",
-                    
-                    deptid,
-                    function(err,res){
-                        if (err) throw err;
-                        console.table(res);
-                        restartApp();
-                    });
-            });
-    });
+        .then(async function (answer) {
+            connection.query(
+                "SELECT id FROM department WHERE name = ?",
+                answer.chooseDepartment,
+                function (err, res) {
+                    if (err) throw err;
+                    let deptid = res[0].id;
+                    connection.query(
+                        "SELECT employee.first_name AS 'First Name', employee.last_name AS 'Last Name', role.title AS 'Job Title', salary AS 'alary' FROM employee INNER JOIN role on employee.role_id = role.id WHERE department_id = ?",
+                        deptid,
+                        function (err, res) {
+                            if (err) throw err;
+                            console.table(res);
+                            restartApp();
+                        });
+                });
+        });
 }
 
 function updateRole() {
@@ -725,47 +715,93 @@ function viewByManager() {
 }
 
 function removeEmployee() {
-    inquirer.prompt(removeEmployeeQuestions)
-        .then(function (answer) {
-            connection.query(
-                "SELECT id, first_name AS 'First Name', last_name AS 'Last Name' FROM employee WHERE first_name = ? AND last_name = ?",
-                [answer.removeFirstName, answer.removeLastName],
-                function (err, res) {
-                    if (err) throw err;
-                    console.table(res);
-                    let empId = res[0].id;
-                    if (!res) {
-                        console.log("! ERROR please try again.");
-                    } else if (res) {
-                        inquirer.prompt({
-                            name: "confirmdelete",
-                            type: "list",
-                            message: "Would you like to delete " + answer.removeFirstName + " " + answer.removeLastName + "?",
-                            choices: ["Yes", "No"]
-                        }).then(function (answer) {
-                            if (answer.confirmdelete === "No") {
-                                restartApp();
-                            } else {
-                                connection.query(
-                                    "DELETE FROM employee WHERE id = ?",
-                                    empId,
-                                    function (err, res) {
-                                        if (err) throw err;
-                                        if (res.affectedRows === 0) {
-                                            console.log("\n ! ERROR no employee found with the provided information \n");
-                                            restartApp();
-                                        } else {
-                                            console.log("\n $ SUCCESS employee deleted \n");
-                                            restartApp();
-                                        }
-                                    }
-                                );
-                            }
-                        });
+    let employees = [];
+    connection.query(
+        "SELECT * FROM employee ORDER BY last_name",
+        function (err, res) {
+            if (err) throw err;
+            for (i = 0; i < res.length; i++) {
+                employees.push(res[i].first_name + " " + res[i].last_name);
+            }
+            inquirer.prompt({
+                name: "removeemployee",
+                type: "list",
+                message: "Select the employee you wish to remove.",
+                choices: employees
+            }).then(function (answer) {
+                let values = answer.removeemployee.split(" ");
+                let employeeFirstName = values.shift();
+                let employeeLastName = values.join(' ');
+                inquirer.prompt({
+                    name: "confirmEmpDelete",
+                    type: "list",
+                    message: "\n Are you sure you want to delete employee: " + employeeLastName + ", " + employeeFirstName + "?",
+                    choices: ["Yes", "No"]
+                }).then(function (answer) {
+                    if (answer.confirmEmpDelete === "No") {
+                        console.log("\n ! DELETION CANCELLED.");
+                        restartApp();
+                    } else {
+                        connection.query(
+                            "DELETE FROM employee WHERE first_name = ? AND last_name = ?",
+                            [employeeFirstName, employeeLastName],
+                            function (err, res) {
+                                if (err) throw err;
+                                if (res.affectedRows === 0) {
+                                    console.log("\n ! ERROR deleting employee - please try again.");
+                                } else {
+                                    console.log("\n $ SUCCESS deleted employee " + employeeLastName + ", " + employeeFirstName + ".");
+                                    restartApp();
+                                }
+                            });
                     }
                 });
+            });
         });
 }
+
+// function removeEmployee() {
+//     inquirer.prompt(removeEmployeeQuestions)
+//         .then(function (answer) {
+//             connection.query(
+//                 "SELECT id, first_name AS 'First Name', last_name AS 'Last Name' FROM employee WHERE first_name = ? AND last_name = ?",
+//                 [answer.removeFirstName, answer.removeLastName],
+//                 function (err, res) {
+//                     if (err) throw err;
+//                     console.table(res);
+//                     let empId = res[0].id;
+//                     if (!res) {
+//                         console.log("! ERROR please try again.");
+//                     } else if (res) {
+//                         inquirer.prompt({
+//                             name: "confirmdelete",
+//                             type: "list",
+//                             message: "Would you like to delete " + answer.removeFirstName + " " + answer.removeLastName + "?",
+//                             choices: ["Yes", "No"]
+//                         }).then(function (answer) {
+//                             if (answer.confirmdelete === "No") {
+//                                 restartApp();
+//                             } else {
+//                                 connection.query(
+//                                     "DELETE FROM employee WHERE id = ?",
+//                                     empId,
+//                                     function (err, res) {
+//                                         if (err) throw err;
+//                                         if (res.affectedRows === 0) {
+//                                             console.log("\n ! ERROR no employee found with the provided information \n");
+//                                             restartApp();
+//                                         } else {
+//                                             console.log("\n $ SUCCESS employee deleted \n");
+//                                             restartApp();
+//                                         }
+//                                     }
+//                                 );
+//                             }
+//                         });
+//                     }
+//                 });
+//         });
+// }
 
 function listmanagers() {
     let managers = [];
