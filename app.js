@@ -561,6 +561,7 @@ function viewByDept() {
         });
 }
 
+// FUNCTION TO UPDATE EMPLOYEE'S ROLE
 function updateRole() {
     let employees = [];
     connection.query(
@@ -618,6 +619,7 @@ function updateRole() {
         });
 }
 
+// FUNCTION TO UPDATE EMPLOYEE'S ASSIGNED MANAGER
 function updateManager() {
     let employees = [];
     connection.query(
@@ -680,6 +682,7 @@ function updateManager() {
         });
 }
 
+// FUNCTION TO VIEW ALL EMPLOYEES ASSIGNED TO A MANAGER
 function viewByManager() {
     let managers = [];
     connection.query(
@@ -717,6 +720,7 @@ function viewByManager() {
         });
 }
 
+// FUNCTION TO DELETE AN EMPLOYEE
 function removeEmployee() {
     let employees = [];
     connection.query(
@@ -763,6 +767,7 @@ function removeEmployee() {
         });
 }
 
+// RETURNS ALL MANAGERS FOR USE IN INQUIRER PROMPTS
 function listmanagers() {
     let managers = [];
     connection.query(
@@ -776,6 +781,7 @@ function listmanagers() {
     return managers;
 }
 
+// RETURNS ALL ACTIVE ROLES FOR USE WITH INQUIRER PROMPTS
 function listroles() {
     let roles = [];
     connection.query(
@@ -789,6 +795,7 @@ function listroles() {
     return roles;
 }
 
+// RETURNS ALL ACTIVE DEPARTMENTS FOR USE WITH INQUIRER PROMPTS
 function listdepartments() {
     let departments = [];
     connection.query(
@@ -802,4 +809,5 @@ function listdepartments() {
     return departments;
 }
 
+// INIT FUNCTION CALL TO START THE APPLICATION!
 init();
