@@ -82,6 +82,9 @@ const budgetQuestion = [{
     choices: ["View Total Salary Budget", "View Salary Budget by Department", "View All Employee Salaries"]
 }];
 
+var ui = new inquirer.ui.BottomBar();
+ui.log.write("\n \n __________WELCOME TO THE EMPLOYEE MANAGEMENT SYSTEM__________ \n \n \n");
+
 // INIT FUNCTION WHICH DISPLAYS INITIAL QUESTIONS AND HAS SWITCH STATEMENTS FOR EACH RESPONSE
 function init() {
     inquirer.prompt(initQuestion)
@@ -759,49 +762,6 @@ function removeEmployee() {
             });
         });
 }
-
-// function removeEmployee() {
-//     inquirer.prompt(removeEmployeeQuestions)
-//         .then(function (answer) {
-//             connection.query(
-//                 "SELECT id, first_name AS 'First Name', last_name AS 'Last Name' FROM employee WHERE first_name = ? AND last_name = ?",
-//                 [answer.removeFirstName, answer.removeLastName],
-//                 function (err, res) {
-//                     if (err) throw err;
-//                     console.table(res);
-//                     let empId = res[0].id;
-//                     if (!res) {
-//                         console.log("! ERROR please try again.");
-//                     } else if (res) {
-//                         inquirer.prompt({
-//                             name: "confirmdelete",
-//                             type: "list",
-//                             message: "Would you like to delete " + answer.removeFirstName + " " + answer.removeLastName + "?",
-//                             choices: ["Yes", "No"]
-//                         }).then(function (answer) {
-//                             if (answer.confirmdelete === "No") {
-//                                 restartApp();
-//                             } else {
-//                                 connection.query(
-//                                     "DELETE FROM employee WHERE id = ?",
-//                                     empId,
-//                                     function (err, res) {
-//                                         if (err) throw err;
-//                                         if (res.affectedRows === 0) {
-//                                             console.log("\n ! ERROR no employee found with the provided information \n");
-//                                             restartApp();
-//                                         } else {
-//                                             console.log("\n $ SUCCESS employee deleted \n");
-//                                             restartApp();
-//                                         }
-//                                     }
-//                                 );
-//                             }
-//                         });
-//                     }
-//                 });
-//         });
-// }
 
 function listmanagers() {
     let managers = [];
