@@ -79,7 +79,7 @@ const budgetQuestion = [{
     name: "budget",
     type: "list",
     message: "What would you like to do?",
-    choices: ["View Total Salary Budget", "View Salary Budget by Department", "View All Employee Salaries"]
+    choices: ["View Total Salary Budget", "View Salary Budget by Department", "View All Employee Salaries", "Go Back"]
 }];
 
 var ui = new inquirer.ui.BottomBar();
@@ -233,6 +233,9 @@ function introBudget() {
                     break;
                 case "View All Employee Salaries":
                     listSalary();
+                    break;
+                case "Go Back":
+                    init();
                     break;
             }
         });
