@@ -26,13 +26,16 @@ Are you still keeping track of all your employees via physical documents? Is you
 ## DEPENDENCIES
 
 -[Express](https://www.npmjs.com/package/express)
+
 -[Node](https://www.npmjs.com/package/node)
+
 -[Inquirer](https://www.npmjs.com/package/inquirer)
+
 -[cTable](https://www.npmjs.com/package/ctable)
 
 ## SCREENSHOTS
 
-[Application Demo GIF](employee-tracker.GIF)
+![Application Demo GIF](employee-tracker.GIF)
 
 ## CONTACT
 
