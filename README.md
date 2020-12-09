@@ -2,7 +2,7 @@
 
 Are you still keeping track of all your employees via physical documents? Is your HR department sick of having to go through a file cabinet because it's 1998? If so, the Employee Tracking System application was made just for you! This program is a CLI application that utilizes a SQL database to keep track of your employees as well as the different job positions and departments. This application will allow you to view, create, update, and remove different data pertaining to your employees and business needs. Not only does the application provide these LIMITLESS possibilities, it allows you to track annual labor costs by for all, for separate employees, and by department.
 
-[Youtube Demo](youtube link)
+[Youtube Demo](https://youtu.be/OPxYsqos3TM)
 
 ## TABLE OF CONTENTS
 
@@ -31,6 +31,8 @@ Are you still keeping track of all your employees via physical documents? Is you
     -[cTable](https://www.npmjs.com/package/ctable)
 
 ## SCREENSHOTS
+
+    [Application Demo GIF](employee-tracker.GIF)
 
 ## CONTACT
 
