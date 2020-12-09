@@ -6,36 +6,36 @@ Are you still keeping track of all your employees via physical documents? Is you
 
 ## TABLE OF CONTENTS
 
-    -[Features](#Features)
+-[Features](#Features)
 
-    -[Dependencies](#Dependencies)
+-[Dependencies](#Dependencies)
 
-    -[Screenshots](#Screenshots)
+-[Screenshots](#Screenshots)
 
-    -[Contact](#Contact)
+-[Contact](#Contact)
 
 ## FEATURES
 
-    -Application has multiple easy-to-understand menus which are seaparated so that the user does not get bombarded with many menu choices.
-    -Utilizes SQL database to save employee, department, and job role information.
-    -Allows you to view, add, remove, and update user, department, and job role data.
-    -Main menu also has a budget option which allows you to view total salary budget, salary budget by department, and to view all employee salaries.
-    -Each submenu has a "Go Back" option to allow users to navigate the application without restarting.
-    -After performing each action for the user, the application gives a small delay to avoid pushing down requested information, then will prompt user to start over or to exit the application.
+-Application has multiple easy-to-understand menus which are seaparated so that the user does not get bombarded with many menu choices.
+-Utilizes SQL database to save employee, department, and job role information.
+-Allows you to view, add, remove, and update user, department, and job role data.
+-Main menu also has a budget option which allows you to view total salary budget, salary budget by department, and to view all employee salaries.
+-Each submenu has a "Go Back" option to allow users to navigate the application without restarting.
+-After performing each action for the user, the application gives a small delay to avoid pushing down requested information, then will prompt user to start over or to exit the application.
 
 ## DEPENDENCIES
 
-    -[Express](https://www.npmjs.com/package/express)
-    -[Node](https://www.npmjs.com/package/node)
-    -[Inquirer](https://www.npmjs.com/package/inquirer)
-    -[cTable](https://www.npmjs.com/package/ctable)
+-[Express](https://www.npmjs.com/package/express)
+-[Node](https://www.npmjs.com/package/node)
+-[Inquirer](https://www.npmjs.com/package/inquirer)
+-[cTable](https://www.npmjs.com/package/ctable)
 
 ## SCREENSHOTS
 
-    [Application Demo GIF](employee-tracker.GIF)
+[Application Demo GIF](employee-tracker.GIF)
 
 ## CONTACT
 
-  :link: https://github.com/ethanrmcdowell
+:link: https://github.com/ethanrmcdowell
   
-  :e-mail: ethan.r.mcdowell@gmail.com
+:e-mail: ethan.r.mcdowell@gmail.com
