@@ -710,7 +710,7 @@ function viewByManager() {
                         if (err) throw err;
                         let managerid = res[0].id;
                         connection.query(
-                            "SELECT employee.id, employee.first_name, employee.last_name, department.name FROM employee INNER JOIN department ON employee.role_id = department.id WHERE manager_id = ? ORDER BY last_name",
+                            "SELECT employee.id AS 'ID', employee.first_name AS 'First Name', employee.last_name AS 'Last Name', department.name AS 'Department' FROM employee INNER JOIN department ON employee.role_id = department.id WHERE manager_id = ? ORDER BY last_name",
                             managerid,
                             function (err, res) {
                                 if (err) throw err;

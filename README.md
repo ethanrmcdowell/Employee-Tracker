@@ -16,12 +16,17 @@ Are you still keeping track of all your employees via physical documents? Is you
 
 ## FEATURES
 
-    -Application has multiple easy-to-understand menus which are seaparated so that the user does not get bombarded with many menu choices.
-    -Utilizes SQL database to save employee, department, and job role information.
-    -Allows you to view, add, remove, and update user, department, and job role data.
-    -Main menu also has a budget option which allows you to view total salary budget, salary budget by department, and to view all employee salaries.
-    -Each submenu has a "Go Back" option to allow users to navigate the application without restarting.
-    -After performing each action for the user, the application gives a small delay to avoid pushing down requested information, then will prompt user to start over or to exit the application.
+-Application has multiple easy-to-understand menus which are seaparated so that the user does not get bombarded with many menu choices.
+
+-Utilizes SQL database to save employee, department, and job role information.
+
+-Allows you to view, add, remove, and update user, department, and job role data.
+
+-Main menu also has a budget option which allows you to view total salary budget, salary budget by department, and to view all employee salaries.
+
+-Each submenu has a "Go Back" option to allow users to navigate the application without restarting.
+
+-After performing each action for the user, the application gives a small delay to avoid pushing down requested information, then will prompt user to start over or to exit the application.
 
 ## DEPENDENCIES
 
