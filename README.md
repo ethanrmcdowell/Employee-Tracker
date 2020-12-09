@@ -35,7 +35,7 @@ Are you still keeping track of all your employees via physical documents? Is you
 
 ## SCREENSHOTS
 
-![Application Demo GIF](employee-tracker.GIF)
+![Application Demo GIF](employee-tracker.gif)
 
 ## CONTACT
 
